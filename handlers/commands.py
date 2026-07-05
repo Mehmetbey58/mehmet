@@ -31,6 +31,7 @@ _HELP_TEXT = (
     "Instagram'a yalnızca şu durumlarda istek gönderilir:\n"
     "• <b>/anlik</b> çalıştırıldığında\n"
     "• <b>/kontrol kullaniciadi</b> çalıştırıldığında\n"
+    "• <b>/login</b> çalıştırıldığında\n"
     "• Her gün ayarlanan saatte (varsayılan 09:00)\n\n"
     "<b>Komutlar</b>\n"
     "/ekle kullaniciadi - Takip listesine hesap ekler\n"
@@ -38,7 +39,8 @@ _HELP_TEXT = (
     "/liste - Takip edilen hesapları gösterir\n"
     "/anlik - Tüm hesapları şimdi kontrol eder\n"
     "/kontrol kullaniciadi - Sadece belirtilen hesabı kontrol eder\n"
-    "/profil kullaniciadi - Hesap bilgilerini gösterir"
+    "/profil kullaniciadi - Hesap bilgilerini gösterir\n"
+    "/login - Instagram oturumunu sıfırdan yeniler"
 )
 
 
@@ -153,6 +155,20 @@ def build_commands_router(
 
         if sent == 0:
             await message.answer("Yeni içerik bulunamadı.")
+
+    @router.message(Command("login"))
+    async def cmd_login(message: Message) -> None:
+        if not is_admin(message):
+            await message.answer(_UNAUTHORIZED)
+            return
+        await message.answer("🔐 Instagram oturumu sıfırdan yenileniyor...")
+        try:
+            await instagram.force_relogin()
+        except Exception as exc:
+            logger.exception("Instagram girişi başarısız oldu")
+            await message.answer(f"⚠️ Giriş başarısız: {exc}")
+            return
+        await message.answer("✅ Instagram girişi başarılı, oturum güncellendi.")
 
     @router.message(Command("profil"))
     async def cmd_profile(message: Message, command: CommandObject, state: FSMContext) -> None:

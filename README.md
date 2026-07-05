@@ -109,9 +109,16 @@ pip install -U instaloader
 | `/anlik`                  | Tüm hesapları şimdi kontrol eder                     |
 | `/kontrol kullaniciadi`   | Sadece belirtilen hesabı kontrol eder                |
 | `/profil kullaniciadi`    | Profil fotoğrafı, ad, bio, takipçi/takip/gönderi sayısı |
+| `/login`                  | Instagram oturumunu siler ve sıfırdan yeniden giriş yapar |
 
 Argüman verilmeden çağrılan `/ekle`, `/sil` ve `/profil` komutları,
 kullanıcı adını ayrı bir mesajla sormak üzere bir iptal butonu gösterir.
+
+`/login`, kayıtlı oturum dosyasını (`IG_SESSION_PATH`) siler ve
+`IG_USERNAME`/`IG_PASSWORD` ile tamamen yeni bir oturum açar. Kayıtlı
+oturum bozulduğunda/geçersiz kaldığında (ör. tüm hesap sorguları
+"bulunamadı" dönüyorsa) sunucuya bağlanmadan, doğrudan Telegram
+üzerinden çözüm üretmek için kullanılır.
 
 ## Gönderi gönderme mantığı
 

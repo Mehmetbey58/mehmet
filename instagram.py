@@ -66,7 +66,12 @@ class InstagramClient:
             try:
                 logger.info("Kayıtlı Instagram oturumu yükleniyor: %s", session_file)
                 self._loader.load_session_from_file(username, str(session_file))
-                return
+                # A session file can load without error yet no longer be
+                # accepted by Instagram (expired/invalidated server-side).
+                # test_login() makes one real round-trip to confirm it.
+                if self._loader.test_login():
+                    return
+                logger.warning("Kayıtlı oturum artık geçerli değil, yeniden giriş yapılacak")
             except (FileNotFoundError, LoginRequiredException):
                 logger.warning("Kayıtlı oturum geçersiz, yeniden giriş yapılacak")
 
@@ -74,6 +79,25 @@ class InstagramClient:
         self._loader.login(username, self._settings.ig_password)
         self._loader.save_session_to_file(str(session_file))
         logger.info("Instagram girişi başarılı, oturum diske kaydedildi")
+
+    async def force_relogin(self) -> None:
+        """Discards any cached session and performs a completely fresh
+        login. Used by the /login command to recover when the cached
+        session is stale/invalid without needing shell access to the
+        host to delete the session file by hand."""
+        async with self._login_lock:
+            self._logged_in = False
+            await asyncio.to_thread(self._force_relogin_sync)
+            self._logged_in = True
+
+    def _force_relogin_sync(self) -> None:
+        session_file = self._settings.ig_session_path
+        if session_file.exists():
+            session_file.unlink()
+        session_file.parent.mkdir(parents=True, exist_ok=True)
+        self._loader.login(self._settings.ig_username, self._settings.ig_password)
+        self._loader.save_session_to_file(str(session_file))
+        logger.info("Instagram girişi (zorla) başarılı, oturum diske kaydedildi")
 
     # -- posts / reels ------------------------------------------------
     @retry_async(exceptions=_RETRYABLE_EXCEPTIONS, attempts=3, base_delay=5.0)
