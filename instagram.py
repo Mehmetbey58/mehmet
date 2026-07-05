@@ -84,8 +84,8 @@ class InstagramClient:
     def _fetch_recent_posts_sync(self, username: str, limit: int) -> list[InstagramContent]:
         try:
             profile = instaloader.Profile.from_username(self._loader.context, username)
-        except (ProfileNotExistsException, QueryReturnedNotFoundException):
-            logger.error("Hesap bulunamadı: @%s", username)
+        except (ProfileNotExistsException, QueryReturnedNotFoundException) as exc:
+            logger.error("Hesap bulunamadı: @%s (%s: %s)", username, type(exc).__name__, exc)
             return []
 
         posts = itertools.islice(profile.get_posts(), limit)
@@ -127,8 +127,8 @@ class InstagramClient:
     def _fetch_active_stories_sync(self, username: str) -> list[InstagramContent]:
         try:
             profile = instaloader.Profile.from_username(self._loader.context, username)
-        except (ProfileNotExistsException, QueryReturnedNotFoundException):
-            logger.error("Hesap bulunamadı: @%s", username)
+        except (ProfileNotExistsException, QueryReturnedNotFoundException) as exc:
+            logger.error("Hesap bulunamadı: @%s (%s: %s)", username, type(exc).__name__, exc)
             return []
 
         contents: list[InstagramContent] = []
@@ -166,8 +166,8 @@ class InstagramClient:
     def _fetch_profile_info_sync(self, username: str) -> ProfileInfo | None:
         try:
             profile = instaloader.Profile.from_username(self._loader.context, username)
-        except (ProfileNotExistsException, QueryReturnedNotFoundException):
-            logger.error("Hesap bulunamadı: @%s", username)
+        except (ProfileNotExistsException, QueryReturnedNotFoundException) as exc:
+            logger.error("Hesap bulunamadı: @%s (%s: %s)", username, type(exc).__name__, exc)
             return None
 
         return ProfileInfo(
