@@ -65,6 +65,39 @@ python bot.py
 Bot, Telegram komutlarını dinlemeye başlar ve günlük kontrol görevini
 `CHECK_TIME` saatine planlar.
 
+## Sorun giderme: sunucu/VPS'te Instagram girişi reddediliyor
+
+Bot bir VPS veya bulut sunucusunda çalışıyorsa, Instagram bu tür
+veri merkezi IP'lerinden gelen programatik girişleri sık sık reddeder;
+kullanıcı adı/şifre doğru olsa bile `LoginException: ... "Unexpected
+null login result"` gibi bir hata alabilirsiniz. Bu, kodda bir hata
+değil, Instagram'ın kendi anti-bot korumasıdır.
+
+Çözüm: girişi normal bir ev/mobil bağlantısından bir kez yapıp oturumu
+sunucuya taşımak.
+
+1. Projeyi kendi bilgisayarınıza da kurun (`pip install -r requirements.txt`)
+   ve aynı `.env` dosyasını (en azından `IG_USERNAME`/`IG_PASSWORD`/
+   `IG_SESSION_PATH`) oraya da koyun.
+2. Kendi bilgisayarınızda çalıştırın:
+   ```bash
+   python create_session.py
+   ```
+   İki adımlı doğrulama açıksa terminalden kod girmeniz istenir.
+3. Oluşan oturum dosyasını (`IG_SESSION_PATH`, varsayılan
+   `data/ig_session`) sunucudaki aynı yola kopyalayın.
+4. Sunucuda `python bot.py` çalıştırın - dosya orada bulunduğu için bot
+   tekrar kullanıcı adı/şifre ile giriş yapmayı denemez, kayıtlı
+   oturumu kullanır.
+
+Ayrıca `instaloader` paketini güncel tutmak da önemlidir; Instagram
+zaman zaman giriş akışını değiştirir ve eski sürümler bu yüzden hata
+verebilir:
+
+```bash
+pip install -U instaloader
+```
+
 ## Komutlar
 
 | Komut                     | Açıklama                                             |
