@@ -98,6 +98,27 @@ verebilir:
 pip install -U instaloader
 ```
 
+### Alternatif: tarayıcı çerezleriyle giriş (checkpoint sorunlarında)
+
+`create_session.py`, Instagram'a kullanıcı adı/şifre ile "programatik"
+giriş yapar. Instagram bunu bazen otomatik/şüpheli davranış olarak
+görüp hesabı güvenlik kontrolüne (checkpoint) alabilir - bu durumda
+`/login` komutu veya `create_session.py` "Checkpoint required" hatası
+verir.
+
+Bu durumda, zaten normal şekilde tarayıcıdan giriş yapılmış bir
+oturumun çerezlerini kullanmak çok daha güvenilirdir - Instagram bu
+oturuma zaten güvenmektedir, hiçbir "giriş" isteği tetiklenmez:
+
+1. Bu bilgisayarda Chrome veya Firefox'ta instagram.com'a normal
+   şekilde (elle) giriş yapın.
+2. ```bash
+   pip install browser-cookie3
+   python create_session_from_browser.py chrome   # veya: firefox
+   ```
+3. Oluşan oturum dosyasını sunucudaki `IG_SESSION_PATH` konumuna
+   kopyalayın ve botu yeniden başlatın.
+
 ## Komutlar
 
 | Komut                     | Açıklama                                             |
