@@ -20,6 +20,7 @@ from instaloader.exceptions import (
     ConnectionException,
     LoginRequiredException,
     ProfileNotExistsException,
+    QueryReturnedBadRequestException,
     QueryReturnedNotFoundException,
     TooManyRequestsException,
 )
@@ -194,10 +195,19 @@ class InstagramClient:
             logger.error("Hesap bulunamadı: @%s (%s: %s)", username, type(exc).__name__, exc)
             return None
 
+        try:
+            biography = profile.biography
+        except QueryReturnedBadRequestException as exc:
+            # Instagram occasionally deprecates the internal query
+            # instaloader uses for the extended bio field; treat it as
+            # best-effort rather than failing the whole profile lookup.
+            logger.warning("@%s için bio bilgisi alınamadı: %s", username, exc)
+            biography = ""
+
         return ProfileInfo(
             username=profile.username,
             full_name=profile.full_name,
-            biography=profile.biography,
+            biography=biography,
             followers=profile.followers,
             followees=profile.followees,
             media_count=profile.mediacount,
